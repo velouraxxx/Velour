@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Veloura</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Manrope:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#0a0710; --ink:#150d18; --white:#fff;
+  --neon:#ff2e9a; --peach:#ffc9b9; --blush:#f4a7c1; --mint:#9ff3e0;
+  --glass:rgba(255,255,255,.07); --line:rgba(255,201,185,.22); --muted:rgba(255,255,255,.62);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:var(--black);color:var(--white);font-family:Manrope,system-ui,sans-serif}
+body{display:flex;justify-content:center}
+button,input,textarea{font:inherit;color:inherit}
+button{background:none;border:0;cursor:pointer}
+:focus-visible{outline:2px solid var(--mint);outline-offset:2px}
+
+#app{position:relative;width:100%;max-width:430px;height:100%;overflow:hidden;
+  background:
+   radial-gradient(120% 60% at 10% 0%,rgba(255,46,154,.35),transparent 60%),
+   radial-gradient(90% 50% at 100% 100%,rgba(159,243,224,.18),transparent 60%),
+   linear-gradient(180deg,#1a0f1d,var(--black))}
+.screen{position:absolute;inset:0;display:none;flex-direction:column;
+  padding:env(safe-area-inset-top) 0 0}
+.screen.on{display:flex}
+.scroll{flex:1;overflow-y:auto;padding:8px 18px 100px}
+.top{display:flex;align-items:center;gap:12px;padding:16px 18px 6px}
+.top h2{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:32px;flex:1}
+.icon{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;background:var(--glass);border:1px solid var(--line)}
+.icon svg,.row svg,.tab svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+
+/* glass */
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:20px;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+
+/* home */
+.logo{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:68px;line-height:1;color:var(--white);
+  text-shadow:0 0 28px rgba(255,46,154,.65)}
+.tag{margin-top:10px;color:var(--peach);line-height:1.45}
+.sect{margin:26px 0 10px;color:var(--muted);font-size:14px}
+.strip{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px}
+.chip{flex:0 0 78px;text-align:center;font-size:12px}
+.avatar{width:78px;height:78px;border-radius:18px;background-size:cover;background-position:center;border:1px solid var(--line);
+  display:grid;place-items:center;font-family:"Cormorant Garamond",serif;font-size:30px;position:relative;margin-bottom:4px;
+  background-color:#2a1630}
+.avatar.live::after{content:"";position:absolute;right:6px;top:6px;width:9px;height:9px;border-radius:50%;background:var(--mint);box-shadow:0 0 8px var(--mint)}
+.row{display:flex;align-items:center;gap:14px;width:100%;padding:16px;margin-bottom:10px;text-align:left}
+.row span{flex:1}
+.row .chev{width:16px;height:16px;opacity:.6}
+
+/* tabs / pills */
+.pills{display:flex;gap:6px;margin:10px 18px;padding:5px;border-radius:999px;background:var(--glass);border:1px solid var(--line)}
+.pill{flex:1;padding:9px 6px;border-radius:999px;font-size:13px;color:var(--muted)}
+.pill.on{background:var(--peach);color:var(--black);font-weight:600}
+
+/* characters */
+.card{position:relative;height:178px;border-radius:22px;margin-bottom:14px;overflow:hidden;cursor:pointer;
+  background-size:cover;background-position:center;background-color:#2a1630;border:1px solid var(--line);display:flex;align-items:flex-end}
+.card::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 35%,rgba(10,7,16,.92))}
+.card .meta{position:relative;padding:14px 16px}
+.card h3{font-family:"Cormorant Garamond",serif;font-weight:600;font-size:26px}
+.card p{font-size:13px;color:var(--peach)}
+.fav{position:absolute;right:12px;top:12px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:rgba(10,7,16,.45);z-index:2}
+.fav svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:1.8}
+.fav.on svg{fill:var(--neon);stroke:var(--neon)}
+.empty{padding:48px 20px;text-align:center;color:var(--muted)}
+
+/* chat */
+.chatbar{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--line);background:rgba(10,7,16,.5);backdrop-filter:blur(14px)}
+.chatbar .avatar{width:42px;height:42px;border-radius:50%;font-size:18px;margin:0}
+.chatbar b{display:block}
+.chatbar small{color:var(--mint);font-size:12px}
+.msgs{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
+.msg{max-width:78%;padding:12px 15px;border-radius:20px;line-height:1.4;font-size:15px}
+.msg.them{align-self:flex-start;background:var(--glass);border:1px solid var(--line);border-bottom-left-radius:6px}
+.msg.me{align-self:flex-end;background:linear-gradient(135deg,var(--neon),#c21d86);border-bottom-right-radius:6px;box-shadow:0 0 22px rgba(255,46,154,.35)}
+.msg time{display:block;margin-top:4px;font-size:11px;opacity:.6}
+.typing{display:flex;gap:4px}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--peach);animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{50%{transform:translateY(-4px);opacity:.5}}
+.compose{display:flex;gap:10px;padding:12px 14px calc(14px + env(safe-area-inset-bottom));align-items:center}
+.compose input{flex:1;padding:13px 16px;border-radius:999px;background:var(--glass);border:1px solid var(--line);outline:0}
+.compose input:focus{border-color:var(--mint)}
+.send{width:44px;height:44px;border-radius:50%;background:var(--neon);display:grid;place-items:center;box-shadow:0 0 18px rgba(255,46,154,.6)}
+.send svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:1.8}
+
+/* forms */
+label{display:block;margin:18px 0 6px;font-size:14px}
+.field{width:100%;padding:13px 15px;border-radius:14px;background:var(--glass);border:1px solid var(--line);outline:0;resize:none}
+.field:focus{border-color:var(--mint)}
+.btn{width:100%;margin-top:22px;padding:16px;border-radius:999px;background:linear-gradient(90deg,var(--peach),var(--blush));color:var(--black);font-weight:600}
+.btn.neon{background:var(--neon);color:#fff;box-shadow:0 0 24px rgba(255,46,154,.5)}
+.upload{display:grid;place-items:center;height:130px;border-radius:20px;border:1px dashed var(--line);background:var(--glass);color:var(--muted);text-align:center;cursor:pointer;background-size:cover;background-position:center}
+
+/* gallery */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tile{position:relative;aspect-ratio:3/4;border-radius:16px;overflow:hidden;background-size:cover;background-position:center;border:1px solid var(--line);
+  background-color:#2a1630}
+.tile:nth-child(3n+1){background-image:linear-gradient(135deg,var(--neon),var(--black))}
+.tile:nth-child(3n+2){background-image:linear-gradient(135deg,var(--mint),#1a0f1d)}
+.tile:nth-child(3n){background-image:linear-gradient(135deg,var(--peach),var(--neon))}
+
+/* settings */
+.brand{display:flex;gap:14px;align-items:center;padding:16px;margin-bottom:14px}
+.brand .avatar{border-radius:50%;background:linear-gradient(135deg,var(--neon),var(--peach));width:58px;height:58px;margin:0}
+.brand b{font-family:"Cormorant Garamond",serif;font-size:24px;font-weight:600}
+.brand small{display:block;color:var(--peach)}
+
+/* bottom nav */
+nav{position:absolute;left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));display:flex;padding:8px;z-index:5;
+  background:rgba(21,13,24,.78);border-radius:26px}
+.tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:11px;color:var(--muted)}
+.tab.on{color:var(--neon)}
+.tab.on svg{filter:drop-shadow(0 0 6px var(--neon))}
+.hide-nav nav{display:none}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- HOME -->
+  <section class="screen" id="home">
+    <div class="scroll">
+      <div style="padding-top:28px">
+        <div class="logo">Veloura</div>
+        <p class="tag">Your world.<br>Your characters.<br>No limits.</p>
+      </div>
+      <div class="sect">Continue chatting</div>
+      <div class="strip" id="recent"></div>
+      <div style="height:22px"></div>
+      <button class="row glass" data-go="create"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><span>Create character</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="row glass" data-go="characters"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><span>Chats</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="row glass" data-go="gallery"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l6-5 4 3 3-2 4 3"/></svg><span>Image gallery</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+      <button class="row glass" data-go="settings"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M18.4 5.6l-2.1 2.1M7.7 16.3l-2.1 2.1"/></svg><span>Settings</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
+    </div>
+  </section>
+
+  <!-- CHARACTERS -->
+  <section class="screen" id="characters">
+    <div class="top"><h2>Characters</h2></div>
+    <div class="pills" id="charFilter">
+      <button class="pill on" data-f="all">All</button>
+      <button class="pill" data-f="fav">Favorites</button>
+      <button class="pill" data-f="recent">Recent</button>
+      <button class="pill" data-go="create">Create</button>
+    </div>
+    <div class="scroll" id="charList"></div>
+  </section>
+
+  <!-- CHAT -->
+  <section class="screen" id="chat">
+    <div class="chatbar">
+      <button class="icon" data-go="characters" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <div class="avatar" id="chatAvatar"></div>
+      <div><b id="chatName"></b><small>Online</small></div>
+    </div>
+    <div class="msgs" id="msgs"></div>
+    <form class="compose" id="composeForm">
+      <input id="composeInput" placeholder="Type a message…" autocomplete="off" aria-label="Message">
+      <button class="send" aria-label="Send"><svg viewBox="0 0 24 24"><path d="M4 12l16-8-6 16-2-6-8-2z"/></svg></button>
+    </form>
+  </section>
+
+  <!-- CREATE -->
+  <section class="screen" id="create">
+    <div class="top"><button class="icon" data-go="home" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><h2>Create character</h2></div>
+    <div class="scroll">
+      <label class="upload" id="upload" for="file" style="margin-top:6px">Add image</label>
+      <input type="file" id="file" accept="image/*" hidden>
+      <label for="cName">Name</label><input class="field" id="cName" placeholder="e.g. Dante">
+      <label for="cTag">Short description</label><textarea class="field" id="cTag" rows="2" placeholder="A quick summary…"></textarea>
+      <label for="cBio">Background</label><textarea class="field" id="cBio" rows="4" placeholder="Their history, world, and story…"></textarea>
+      <button class="btn" id="saveChar">Save character</button>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section class="screen" id="gallery">
+    <div class="top"><h2>Image gallery</h2></div>
+    <div class="pills"><button class="pill on">All</button><button class="pill">AI generated</button><button class="pill">Favorites</button></div>
+    <div class="scroll"><div class="grid" id="grid"></div></div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section class="screen" id="settings">
+    <div class="top"><button class="icon" data-go="home" aria-label="Back"><svg viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button><h2>Settings</h2></div>
+    <div class="scroll">
+      <div class="brand glass"><div class="avatar">V</div><div><b>Veloura</b><small>Your world. Your rules.</small></div></div>
+      <div class="glass" id="setList"></div>
+      <button class="btn neon" id="reset">Reset app data</button>
+    </div>
+  </section>
+
+  <nav class="glass" id="nav"></nav>
+</div>
+
+<script>
+/* ============ 1. YOUR CHARACTERS (edit this list) ============
+   Put your images in an /images folder next to index.html and
+   point "img" at them, e.g. "images/dante.jpg".
+   If a file is missing, the app shows a neon gradient instead. */
+const DEFAULT_CHARACTERS = [
+  {id:"dante",   name:"Dante",   tag:"Ruthless. Protective. Yours.", img:"images/dante.jpg",   bio:""},
+  {id:"cassian", name:"Cassian", tag:"Danger looks good on him.",    img:"images/cassian.jpg", bio:""},
+  {id:"liora",   name:"Liora",   tag:"Soft. Fierce. Unforgettable.", img:"images/liora.jpg",   bio:""}
+];
+/* Gallery images: add file paths here, e.g. "images/gallery1.jpg" */
+const GALLERY = ["images/gallery1.jpg","images/gallery2.jpg","images/gallery3.jpg","images/gallery4.jpg","images/gallery5.jpg","images/gallery6.jpg"];
+
+/* ============ 2. REPLIES (plug in your own backend here) ============
+   Replace this function with a fetch() to whatever service you use.
+   It receives the character and message history and must return text. */
+async function getReply(character, history){
+  await new Promise(r=>setTimeout(r,900));
+  const lines = ["Mm… tell me more.","You always know what to say.","Come closer and say that again.","I was just thinking about you."];
+  return lines[Math.floor(Math.random()*lines.length)];
+}
+
+/* ============ App code ============ */
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const store={
+  get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+};
+let chars = store.get("vl_chars", DEFAULT_CHARACTERS);
+let favs  = store.get("vl_favs", []);
+let recent= store.get("vl_recent", []);
+let chats = store.get("vl_chats", {});
+let current=null, filter="all", newImg="";
+
+const ICONS={
+ home:'<path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/>',
+ characters:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6"/>',
+ chats:'<path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/>',
+ gallery:'<rect x="3" y="4" width="18" height="16" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M4 18l6-5 4 3 3-2 4 3"/>',
+ settings:'<circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/>'
+};
+const TABS=[["home","Home"],["characters","Characters"],["chats","Chats"],["gallery","Gallery"],["settings","More"]];
+$("#nav").innerHTML=TABS.map(([k,l])=>`<button class="tab" data-tab="${k}"><svg viewBox="0 0 24 24">${ICONS[k]}</svg>${l}</button>`).join("");
+
+function go(id){
+  if(id==="chats") id=recent.length?"characters":"characters";
+  $$(".screen").forEach(s=>s.classList.toggle("on",s.id===id));
+  $("#app").classList.toggle("hide-nav",id==="chat"||id==="create");
+  const tabId={home:"home",characters:"characters",gallery:"gallery",settings:"settings"}[id];
+  $$(".tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===tabId));
+  if(id==="home") renderHome();
+  if(id==="characters") renderChars();
+}
+document.addEventListener("click",e=>{
+  const g=e.target.closest("[data-go]"); if(g){go(g.dataset.go);return}
+  const t=e.target.closest("[data-tab]"); if(t){go(t.dataset.tab)}
+});
+
+function bg(c){return c.img?`background-image:url('${c.img}')`:""}
+function avatar(c,live){return `<div class="avatar ${live?"live":""}" style="${bg(c)}">${c.img?"":c.name[0]}</div>`}
+
+function renderHome(){
+  const list=recent.map(id=>chars.find(c=>c.id===id)).filter(Boolean);
+  const show=list.length?list:chars.slice(0,4);
+  $("#recent").innerHTML=show.map(c=>`<button class="chip" data-open="${c.id}">${avatar(c,true)}${c.name}</button>`).join("");
+}
+function renderChars(){
+  let list=chars;
+  if(filter==="fav") list=chars.filter(c=>favs.includes(c.id));
+  if(filter==="recent") list=recent.map(id=>chars.find(c=>c.id===id)).filter(Boolean);
+  $("#charList").innerHTML=list.length?list.map(c=>`
+    <div class="card" style="${bg(c)}" data-open="${c.id}">
+      <button class="fav ${favs.includes(c.id)?"on":""}" data-fav="${c.id}" aria-label="Favorite ${c.name}"><svg viewBox="0 0 24 24"><path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.600-7 10-7 10z"/></svg></button>
+      <div class="meta"><h3>${c.name}</h3><p>${c.tag||""}</p></div>
+    </div>`).join(""):`<div class="empty">Nothing here yet. Tap Create to add a character.</div>`;
+}
+$("#charFilter").addEventListener("click",e=>{
+  const p=e.target.closest(".pill[data-f]"); if(!p) return;
+  filter=p.dataset.f; $$("#charFilter .pill").forEach(x=>x.classList.toggle("on",x===p)); renderChars();
+});
+document.addEventListener("click",e=>{
+  const f=e.target.closest("[data-fav]");
+  if(f){e.stopPropagation();const id=f.dataset.fav;favs=favs.includes(id)?favs.filter(x=>x!==id):[...favs,id];store.set("vl_favs",favs);renderChars();return}
+  const o=e.target.closest("[data-open]"); if(o) openChat(o.dataset.open);
+});
+
+/* chat */
+const time=()=>new Date().toLocaleTimeString([],{hour:"numeric",minute:"2-digit"});
+function openChat(id){
+  current=chars.find(c=>c.id===id); if(!current) return;
+  recent=[id,...recent.filter(x=>x!==id)].slice(0,8); store.set("vl_recent",recent);
+  $("#chatName").textContent=current.name;
+  $("#chatAvatar").setAttribute("style",bg(current)); $("#chatAvatar").textContent=current.img?"":current.name[0];
+  renderMsgs(); go("chat");
+}
+function renderMsgs(){
+  const m=chats[current.id]||[];
+  $("#msgs").innerHTML=m.map(x=>`<div class="msg ${x.who}">${esc(x.text)}<time>${x.t}</time></div>`).join("");
+  $("#msgs").scrollTop=1e9;
+}
+function esc(s){return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]))}
+$("#composeForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const inp=$("#composeInput"), text=inp.value.trim(); if(!text) return;
+  inp.value="";
+  const id=current.id; chats[id]=chats[id]||[];
+  chats[id].push({who:"me",text,t:time()}); store.set("vl_chats",chats); renderMsgs();
+  $("#msgs").insertAdjacentHTML("beforeend",`<div class="msg them" id="typ"><div class="typing"><i></i><i></i><i></i></div></div>`);
+  $("#msgs").scrollTop=1e9;
+  let reply;
+  try{reply=await getReply(current,chats[id])}catch(err){reply="Something went wrong sending that. Try again."}
+  chats[id].push({who:"them",text:reply,t:time()}); store.set("vl_chats",chats);
+  if(current.id===id) renderMsgs();
+});
+
+/* create */
+$("#file").addEventListener("change",e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=()=>{newImg=r.result;$("#upload").style.backgroundImage=`url('${newImg}')`;$("#upload").textContent=""};
+  r.readAsDataURL(f);
+});
+$("#saveChar").addEventListener("click",()=>{
+  const name=$("#cName").value.trim();
+  if(!name){$("#cName").focus();$("#cName").placeholder="Add a name to continue";return}
+  const c={id:name.toLowerCase().replace(/\W+/g,"-")+"-"+Date.now().toString(36),name,tag:$("#cTag").value.trim(),bio:$("#cBio").value.trim(),img:newImg};
+  chars=[...chars,c]; store.set("vl_chars",chars); /* note: uploaded images are stored in the browser only */
+  ["#cName","#cTag","#cBio"].forEach(s=>$(s).value=""); newImg=""; $("#upload").style.backgroundImage=""; $("#upload").textContent="Add image";
+  filter="all"; go("characters");
+});
+
+/* gallery */
+$("#grid").innerHTML=GALLERY.map(src=>`<div class="tile" style="background-image:url('${src}'),linear-gradient(135deg,#ff2e9a,#0a0710)"></div>`).join("");
+
+/* settings */
+const SET=["Account","Appearance","Notifications","Data & Privacy","AI Preferences","Subscriptions","Help & Support"];
+$("#setList").innerHTML=SET.map((s,i)=>`<button class="row" style="margin:0;${i?"border-top:1px solid var(--line);border-radius:0":""}"><span>${s}</span><svg class="chev" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>`).join("");
+$("#reset").addEventListener("click",()=>{if(confirm("Reset all characters and chats on this device?")){["vl_chars","vl_favs","vl_recent","vl_chats"].forEach(k=>localStorage.removeItem(k));location.reload()}});
+
+go("home");
+</script>
+</body>
+</html>
