@@ -1,11 +1,5 @@
-// Cloudflare Worker: sits between your GitHub Pages app and the Anthropic API,
+// Cloudflare Worker: proxies requests to the Anthropic API
 // so your API key stays secret (never put it in index.html).
-//
-// Setup (in the Cloudflare dashboard):
-//  1. Workers & Pages -> Create -> Worker -> paste this file -> Deploy
-//  2. Settings -> Variables and Secrets -> add a SECRET named ANTHROPIC_API_KEY
-//  3. Add a plain variable named ALLOWED_ORIGIN, e.g. https://YOURNAME.github.io
-//  4. Copy the worker's URL into API_URL in index.html
 
 export default {
   async fetch(request, env) {
@@ -50,16 +44,22 @@ export default {
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-sonnet-5-5",
+        model: "claude-sonnet-4-5",   // ⬅️ fixed: was "claude-sonnet-5-5"
         max_tokens: 300,
         system,
         messages,
       }),
     });
 
-    if (!r.ok) return json({ error: "Upstream error" }, 502);
+    if (!r.ok) {
+      const errText = await r.text().catch(() => "");
+      return json({ error: "Upstream error", detail: errText }, 502);
+    }
     const out = await r.json();
-    const reply = (out.content || []).filter((b) => b.type === "text").map((b) => b.text).join("");
+    const reply = (out.content || [])
+      .filter((b) => b.type === "text")
+      .map((b) => b.text)
+      .join("");
     return json({ reply });
   },
 };
